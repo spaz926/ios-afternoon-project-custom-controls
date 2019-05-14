@@ -35,16 +35,13 @@ class CustomControl: UIControl {
     // MARK: - Touch Handlers
     
     override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
-        
-        NSLog("Begin tracking called.")
+    
         updateValue(at: touch)
         
         return true
     }
     
     override func continueTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
-        
-        NSLog("Continue tracking called.")
         
         let touchPoint = touch.location(in: self)
         
@@ -60,8 +57,6 @@ class CustomControl: UIControl {
     
     override func endTracking(_ touch: UITouch?, with event: UIEvent?) {
         
-        NSLog("End tracking called.")
-        
         guard let touch = touch else { return }
         let touchPoint = touch.location(in: self)
         
@@ -74,7 +69,6 @@ class CustomControl: UIControl {
     }
     
     override func cancelTracking(with event: UIEvent?) {
-        NSLog("Cancel tracking called.")
         sendActions(for: [.touchCancel])
     }
     
@@ -108,9 +102,12 @@ class CustomControl: UIControl {
         
         for label in labels {
             if label.frame.contains(touchPoint) {
-                value = label.tag
-                updateLabelColor()
-                sendActions(for: [.valueChanged])
+                if value != label.tag {
+                    value = label.tag
+                    updateLabelColor()
+                    label.performFlare()
+                    sendActions(for: [.valueChanged])
+                }
             }
         }
     }
