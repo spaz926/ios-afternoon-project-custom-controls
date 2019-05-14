@@ -12,6 +12,8 @@ class CustomControl: UIControl {
     
     var value = 1
     
+    private var labels = [UILabel]()
+    
     private let componentDimension      = CGFloat(40.0)
     private let componentCount          = 5
     private let componentActiveColor    = UIColor.black
@@ -30,9 +32,55 @@ class CustomControl: UIControl {
         return CGSize(width: width, height: componentDimension)
     }
     
-    private func setup() {
+    // MARK: - Touch Handlers
+    
+    override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
         
-        var labels = [UILabel]()
+        NSLog("Begin tracking called.")
+        updateValue(at: touch)
+        
+        return true
+    }
+    
+    override func continueTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+        
+        NSLog("Continue tracking called.")
+        
+        let touchPoint = touch.location(in: self)
+        
+        if bounds.contains(touchPoint) {
+            sendActions(for: [.touchDragInside])
+            updateValue(at: touch)
+        } else {
+            sendActions(for: [.touchDragOutside])
+        }
+        
+        return true
+    }
+    
+    override func endTracking(_ touch: UITouch?, with event: UIEvent?) {
+        
+        NSLog("End tracking called.")
+        
+        guard let touch = touch else { return }
+        let touchPoint = touch.location(in: self)
+        
+        if bounds.contains(touchPoint) {
+            sendActions(for: [.touchUpInside])
+            updateValue(at: touch)
+        } else {
+            sendActions(for: [.touchUpOutside])
+        }
+    }
+    
+    override func cancelTracking(with event: UIEvent?) {
+        NSLog("Cancel tracking called.")
+        sendActions(for: [.touchCancel])
+    }
+    
+    // MARK: - Private Methods
+    
+    private func setup() {
         
         for i in 0..<componentCount {
             let label = UILabel()
@@ -45,12 +93,39 @@ class CustomControl: UIControl {
                 label.frame = CGRect(x: 8.0, y: 0, width: componentDimension, height: componentDimension)
                 label.textColor = componentActiveColor
             } else {
-                label.frame = CGRect(x: (componentDimension * CGFloat(i)) + 16.0, y: 0, width: componentDimension, height: componentDimension)
+                label.frame = CGRect(x: (componentDimension * CGFloat(i)) + 8.0, y: 0, width: componentDimension, height: componentDimension)
                 label.textColor = componentInactiveColor
             }
             
             self.addSubview(label)
             labels.append(label)
+        }
+    }
+    
+    private func updateValue(at touch: UITouch) {
+        
+        let touchPoint = touch.location(in: self)
+        
+        for label in labels {
+            if label.frame.contains(touchPoint) {
+                value = label.tag
+                updateLabelColor()
+                sendActions(for: [.valueChanged])
+            }
+        }
+    }
+    
+    private func updateLabelColor() {
+        
+        for label in self.subviews {
+            
+            if let label = label as? UILabel {
+                if label.tag <= value {
+                    label.textColor = componentActiveColor
+                } else {
+                    label.textColor = componentInactiveColor
+                }
+            }
         }
     }
 
