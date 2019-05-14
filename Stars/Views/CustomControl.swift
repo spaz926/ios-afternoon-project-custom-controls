@@ -78,17 +78,17 @@ class CustomControl: UIControl {
         
         for i in 0..<componentCount {
             let label = UILabel()
-            label.text = "☆"
+            label.text = "⭐️"
             label.tag = i + 1
             label.font = .systemFont(ofSize: 32, weight: .bold)
             label.textAlignment = .center
             
             if label.tag == 1 {
                 label.frame = CGRect(x: 8.0, y: 0, width: componentDimension, height: componentDimension)
-                label.textColor = componentActiveColor
+                label.alpha = 1
             } else {
                 label.frame = CGRect(x: (componentDimension * CGFloat(i)) + 8.0, y: 0, width: componentDimension, height: componentDimension)
-                label.textColor = componentInactiveColor
+                label.alpha = 0.25
             }
             
             self.addSubview(label)
@@ -118,9 +118,9 @@ class CustomControl: UIControl {
             
             if let label = label as? UILabel {
                 if label.tag <= value {
-                    label.textColor = componentActiveColor
+                    label.alpha = 1
                 } else {
-                    label.textColor = componentInactiveColor
+                    label.alpha = 0.25
                 }
             }
         }
